@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -48,10 +49,18 @@ public class MainActivity extends AppCompatActivity {
         ListView my_listview=(ListView) findViewById(R.id.my_item);//här
         my_listview.setAdapter(adapter);//här
         ArrayAdapter<Mountain> adapter2=new ArrayAdapter<Mountain>(this,R.layout.my_item,R.id.my_item,mountainArrayList);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){ //Lägger knappen i menyn
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     private class FetchData extends AsyncTask<Void,Void,String>{
         @Override
+
         protected String doInBackground(Void... params) {
             // These two variables need to be declared outside the try/catch
             // so that they can be closed in the finally block.
@@ -63,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 // Construct the URL for the Internet service
-                URL url = new URL("_ENTER_THE_URL_TO_THE_PHP_SERVICE_SERVING_JSON_HERE_");
+                URL url = new URL("http://wwwlab.iit.his.se/brom/kurser/mobilprog/jsonservice.php");
 
                 // Create the request to the PHP-service, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -114,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String o) {
             super.onPostExecute(o);
+            Log.d("brom","DataFetched:"+o);
             // This code executes after we have received our data. The String object o holds
             // the un-parsed JSON string or is null if we had an IOException during the fetch.
 
