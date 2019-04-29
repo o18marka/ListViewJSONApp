@@ -4,6 +4,8 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +13,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+// Create ArrayLists from the raw data above and use these lists when populating your ListView.
+
 
 
 // Create a new class, Mountain, that can hold your JSON data
@@ -26,10 +32,22 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
+    private String[] mountainNames = {"Matterhorn","Mont Blanc","Denali"};
+    private String[] mountainLocations = {"Alps","Alps","Alaska"};
+    private int[] mountainHeights ={4478,4808,6190};
+    private ArrayList<String> listData=new ArrayList<>(Arrays.asList(mountainNames));//här
+    private ArrayList<Mountain> mountainArrayList=new ArrayList<>(); //här
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,R.layout.my_item,R.id.my_item,listData);//Här
+        ListView my_listview=(ListView) findViewById(R.id.my_item);//här
+        my_listview.setAdapter(adapter);//här
+        ArrayAdapter<Mountain> adapter2=new ArrayAdapter<Mountain>(this,R.layout.my_item,R.id.my_item,mountainArrayList);
     }
 
     private class FetchData extends AsyncTask<Void,Void,String>{
