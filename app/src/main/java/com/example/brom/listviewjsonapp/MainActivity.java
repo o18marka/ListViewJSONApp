@@ -6,8 +6,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,11 +41,11 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String[] mountainNames = {"Matterhorn","Mont Blanc","Denali"};
-    private String[] mountainLocations = {"Alps","Alps","Alaska"};
-    private int[] mountainHeights ={4478,4808,6190};
-    private ArrayList<String> listData=new ArrayList<>(Arrays.asList(mountainNames));//här
-    private ArrayList<Mountain> mountainArrayList=new ArrayList<>(); //här
+    private String[] mountainNames = {""};
+    private String[] mountainLocations = {""};
+    private int[] mountainHeights ={};
+    private ArrayList<String> listData;
+    private ArrayAdapter<Mountain> mountainAdapter;
 
 
     @Override
@@ -46,10 +53,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,R.layout.my_item,R.id.my_item,listData);//Här
-        ListView my_listview=(ListView) findViewById(R.id.my_item);//här
-        my_listview.setAdapter(adapter);//här
-        ArrayAdapter<Mountain> adapter2=new ArrayAdapter<Mountain>(this,R.layout.my_item,R.id.my_item,mountainArrayList);
+        new FetchData().execute();//Hämtar datan
+        listData=new ArrayList<>(Arrays.asList(mountainNames)); //Listar den hämtade datan i mountainNames fältet
+        mountainAdapter=new ArrayAdapter<Mountain>(this,R.layout.my_item,R.id.my_item);
+
+        ListView my_listview=(ListView) findViewById(R.id.mountain_listview); //Skapar en listview
+        my_listview.setAdapter(mountainAdapter); //Listview ska innehålla data från mountainAdapter
+
+        my_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() { //Toast som bestämmer vilken information som ska printas beroende på variabeln i (senare skapad for-loop)
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String temp = mountainAdapter.getItem(i).info();
+                Toast.makeText(getApplicationContext(), temp, Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
@@ -64,8 +81,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if(id == R.id.action_refresh){
+            mountainAdapter.clear(); //Rensar listan vid refresh så gamla versioner rensas
             new FetchData().execute();
-
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -85,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 // Construct the URL for the Internet service
-                URL url = new URL("http://wwwlab.iit.his.se/brom/kurser/mobilprog/jsonservice.php");
+                URL url = new URL("http://wwwlab.iit.his.se/brom/kurser/mobilprog/dbservice/admin/getdataasjson.php?type=brom"); //URL
 
                 // Create the request to the PHP-service, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -142,6 +159,26 @@ public class MainActivity extends AppCompatActivity {
 
             // Implement a parsing code that loops through the entire JSON and creates objects
             // of our newly created Mountain class.
+            try {
+
+                JSONArray toastArray = new JSONArray(o);
+                for (int i = 0; i < toastArray.length(); i++) { //for-loop som bestämmer värdet på i för användning av toast tidigare i programmet
+                    Log.d("brom", "element 0:" + toastArray.get(i).toString());
+                    JSONObject container = toastArray.getJSONObject(i);
+                    //loggar data om bergen i objectet container
+                    Log.d("brom", container.getString("name"));
+                    Log.d("brom", container.getString("location"));
+                    Log.d("brom", "" + container.getInt("size"));
+                    //Log.d("brom",  n.toString());
+
+                    Mountain m = new Mountain(container.getString("name"), container.getString("location"), container.getInt("size"));
+                    Log.d("brom", m.toString());
+                    mountainAdapter.add(m); //Lägger till berget i mountainadapter som sedan visas i listview
+                }
+            }
+            catch (JSONException e) {
+                Log.e("brom","E:"+e.getMessage());
+            }
         }
     }
 }

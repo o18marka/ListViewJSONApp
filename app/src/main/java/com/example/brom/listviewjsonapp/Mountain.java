@@ -32,4 +32,9 @@ public class Mountain {
         return name;
     }
 
+    @Override
+    public String toString() { //Översätter JSON datan till en string som appen kan hantera
+        return name;
+    }
+
 }
