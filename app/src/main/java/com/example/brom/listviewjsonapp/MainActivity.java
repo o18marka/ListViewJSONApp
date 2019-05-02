@@ -169,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("brom", container.getString("name"));
                     Log.d("brom", container.getString("location"));
                     Log.d("brom", "" + container.getInt("size"));
-                    //Log.d("brom",  n.toString());
 
                     Mountain m = new Mountain(container.getString("name"), container.getString("location"), container.getInt("size"));
                     Log.d("brom", m.toString());
